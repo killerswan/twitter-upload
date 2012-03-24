@@ -1,0 +1,48 @@
+name:                upload
+version:             0.1
+synopsis:            An image uploader for the Twitter API
+description:         
+   .
+   A tool to upload photos to Twitter (using the Askitter library)
+   .
+   Usage: upload --token "mytokenfile" img1 img2 ... imgN
+   .
+category:            Twitter
+stability:           experimental
+license:             BSD3
+license-file:        LICENSE
+author:              Kevin Cantu <me@kevincantu.org>
+maintainer:          Kevin Cantu <me@kevincantu.org>
+copyright:           (c) 2012 Kevin Cantu
+homepage:            https://github.com/killerswan/twitter-upload
+bug-reports:         https://github.com/killerswan/twitter-upload/issues
+build-type:          Simple
+cabal-version:       >=1.8
+
+source-repository head
+   type:       git
+   location:   https://github.com/killerswan/twitter-upload
+
+executable upload
+   main-is:          upload.hs
+   hs-source-dirs:   .
+   ghc-options:      -Wall -O2
+   build-depends:    askitter >= 0.0.1,
+                     base,
+                     bytestring,
+                     strptime,
+                     text,
+                     time
+
+executable upload-threadscope
+   main-is:          upload.hs
+   hs-source-dirs:   .
+   ghc-options:      -Wall -O2 -threaded -eventlog -auto-all -rtsopts
+   build-depends:    askitter >= 0.0.1,
+                     base,
+                     bytestring,
+                     strptime,
+                     text,
+                     time
+
+
