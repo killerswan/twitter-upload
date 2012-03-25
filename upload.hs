@@ -24,6 +24,7 @@ import System.IO.Error
 import System.Console.GetOpt
 import Web.Twitter         -- provided by askitter
 import Web.Twitter.OAuth   -- provided by askitter
+import qualified Data.ByteString.Lazy as BL
 
 
 version = "0.1"
@@ -84,5 +85,6 @@ main =
          token  <- readToken (tokenFile opts)
          putStrLn "images given were:"
          mapM_ putStrLn nonOptions
+         uploadImage token (head nonOptions) (BL.pack [0x78,0x78,0x78,0x78,0x78,0x78])
 
 
