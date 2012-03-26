@@ -85,6 +85,9 @@ main =
          token  <- readToken (tokenFile opts)
          putStrLn "images given were:"
          mapM_ putStrLn nonOptions
-         uploadImage token (head nonOptions) (BL.pack [0x78,0x78,0x78,0x78,0x78,0x78])
+
+         let status = nonOptions !! 0
+         image <- BL.readFile (nonOptions !! 1)
+         uploadImage token status image
 
 
