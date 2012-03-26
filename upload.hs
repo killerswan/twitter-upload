@@ -45,12 +45,10 @@ defaultOpts = Options { tokenFile        = error "no token file specified..." }
 options :: [ OptDescr (Options -> IO Options) ]
 options =
    [
-     -- REGULAR OR GEN MODE
      Option "t" ["token"] 
          (ReqArg (\arg opt -> return opt { tokenFile = arg }) "FILE")
          "name of a file where the token is saved"
 
-     -- HELP
    , Option "h" ["help"] 
          (NoArg $ \_ ->
             do
@@ -59,7 +57,6 @@ options =
                exitWith ExitSuccess)
          "display help"
 
-     -- VERSION
    , Option "v" ["version"] 
          (NoArg $ \_ ->
             do
@@ -83,8 +80,7 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
-         putStrLn "images given were:"
-         mapM_ putStrLn nonOptions
+         --mapM_ putStrLn nonOptions
 
          let status = nonOptions !! 0
          image <- BL.readFile (nonOptions !! 1)
