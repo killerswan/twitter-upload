@@ -11,32 +11,26 @@
 
 module Main (main) where
 
-import Control.Monad (when)
-import Data.Time.Calendar
-import Data.Time.Clock
-import Data.Time.LocalTime
-import Data.Time.Parse
-import Data.Maybe
-import System.Environment
-import System.Exit
-import System.IO
-import System.IO.Error
-import System.Console.GetOpt
-import Web.Twitter         -- provided by askitter
-import Web.Twitter.OAuth   -- provided by askitter
-import qualified Data.ByteString.Lazy as BL
+import System.Environment (getArgs, getProgName)
+import System.Exit (exitWith, ExitCode(ExitSuccess))
+import System.IO (stderr, hPutStrLn)
+import System.Console.GetOpt (getOpt, usageInfo, OptDescr(Option), ArgDescr(ReqArg, NoArg), ArgOrder(Permute))
+import qualified Data.ByteString.Lazy as BL (readFile)
+import Web.Twitter (uploadImage)
+import Web.Twitter.OAuth (readToken)
 
 
+version :: String
 version = "0.1"
 
 
 -- command line options
-data Options = Options { tokenFile        :: String }
+data Options = Options { tokenFile :: String }
 
 
 -- command line defaults
 defaultOpts :: Options
-defaultOpts = Options { tokenFile        = error "no token file specified..." }
+defaultOpts = Options { tokenFile = error "no token file specified..." }
 
 
 -- command line description
@@ -45,7 +39,7 @@ defaultOpts = Options { tokenFile        = error "no token file specified..." }
 options :: [ OptDescr (Options -> IO Options) ]
 options =
    [
-     Option "t" ["token"] 
+     Option "t" ["tokenFile"] 
          (ReqArg (\arg opt -> return opt { tokenFile = arg }) "FILE")
          "name of a file where the token is saved"
 
@@ -80,7 +74,6 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
-         --mapM_ putStrLn nonOptions
 
          let status = nonOptions !! 0
          image <- BL.readFile (nonOptions !! 1)

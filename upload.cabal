@@ -5,7 +5,7 @@ description:
    .
    A tool to upload photos to Twitter (using the Askitter library)
    .
-   Usage: upload --token "mytokenfile" img1 img2 ... imgN
+   Usage: upload --tokenFile FILE STATUS IMAGE
    .
 category:            Twitter
 stability:           experimental
@@ -33,16 +33,4 @@ executable upload
                      strptime,
                      text,
                      time
-
-executable upload-threadscope
-   main-is:          upload.hs
-   hs-source-dirs:   .
-   ghc-options:      -Wall -O2 -threaded -eventlog -auto-all -rtsopts
-   build-depends:    askitter >= 0.0.1,
-                     base,
-                     bytestring,
-                     strptime,
-                     text,
-                     time
-
 
