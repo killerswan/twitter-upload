@@ -74,9 +74,8 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
+         let status    = nonOptions !! 0
+         let imageName = nonOptions !! 1
 
-         let status = nonOptions !! 0
-         image <- BL.readFile (nonOptions !! 1)
-         uploadImage token status image
-
+         uploadImage token status imageName
 
