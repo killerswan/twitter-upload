@@ -5,10 +5,11 @@ March 2012
 BUILD:
 $ mkdir twitter-dev
 $ cd twitter-dev
+$ git clone https://killerswan@github.com/killerswan/hoauth.git
 $ git clone https://killerswan@github.com/killerswan/askitter.git
 $ git clone https://killerswan@github.com/killerswan/twitter-unfav.git
 $ git clone https://killerswan@github.com/killerswan/twitter-upload.git
-$ cabal-dev install ./askitter ./twitter-unfav ./twitter-upload
+$ cabal-dev install ./hoauth ./askitter ./twitter-unfav ./twitter-upload
 
 SETUP:
 Create an app, registered with Twitter and given read/write permissions.
