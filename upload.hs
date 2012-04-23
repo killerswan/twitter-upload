@@ -15,7 +15,6 @@ import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith, ExitCode(ExitSuccess))
 import System.IO (stderr, hPutStrLn)
 import System.Console.GetOpt (getOpt, usageInfo, OptDescr(Option), ArgDescr(ReqArg, NoArg), ArgOrder(Permute))
-import qualified Data.ByteString.Lazy as BL (readFile)
 import Web.Twitter (uploadImage)
 import Web.Twitter.OAuth (readToken)
 
