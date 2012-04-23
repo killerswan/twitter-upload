@@ -15,6 +15,6 @@ Create an app, registered with Twitter and given read/write permissions.
 Then use `unfav` or another tool to save a token in a file.
 
 RUN:
-$ ./cabal-dev/bin/upload -t TOKEN STATUS IMAGE_PATH
+$ ./cabal-dev/bin/upload -t TOKEN -s STATUS -i IMAGE_PATH
 
 

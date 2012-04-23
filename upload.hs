@@ -24,12 +24,15 @@ version = "0.1"
 
 
 -- command line options
-data Options = Options { tokenFile :: String }
+data Options = Options { tokenFile :: String, image :: String, status :: String }
 
 
 -- command line defaults
 defaultOpts :: Options
-defaultOpts = Options { tokenFile = error "no token file specified..." }
+defaultOpts = Options { tokenFile = error "no token file specified..."
+                      , image = error "no image file specified..."
+                      , status = ""
+                      }
 
 
 -- command line description
@@ -37,10 +40,17 @@ defaultOpts = Options { tokenFile = error "no token file specified..." }
 --   [Option short [long] (property setter-function hint) description]
 options :: [ OptDescr (Options -> IO Options) ]
 options =
-   [
-     Option "t" ["tokenFile"] 
+   [ Option "t" ["tokenFile"] 
          (ReqArg (\arg opt -> return opt { tokenFile = arg }) "FILE")
-         "name of a file where the token is saved"
+         "file where the oauth token is saved"
+
+   , Option "i" ["image"] 
+         (ReqArg (\arg opt -> return opt { image = arg }) "FILE")
+         "image to be uploaded"
+
+   , Option "s" ["status"] 
+         (ReqArg (\arg opt -> return opt { status = arg }) "MESSAGE")
+         "status tweet to be posted"
 
    , Option "h" ["help"] 
          (NoArg $ \_ ->
@@ -66,15 +76,12 @@ main =
       args <- getArgs
 
       -- call getOpt, ignoring errors
-      let (actions, nonOptions, _) = getOpt Permute options args
+      let (actions, _, _) = getOpt Permute options args
 
       -- process the defaults with those actions
       opts <- foldl (>>=) (return defaultOpts) actions
 
       do
          token  <- readToken (tokenFile opts)
-         let status    = nonOptions !! 0
-         let imageName = nonOptions !! 1
-
-         uploadImage token status imageName
+         uploadImage token (status opts) (image opts)
 
