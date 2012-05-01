@@ -30,6 +30,7 @@ executable upload
    build-depends:    askitter >= 0.0.1,
                      base,
                      bytestring,
+                     split,
                      strptime,
                      text,
                      time

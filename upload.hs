@@ -11,11 +11,12 @@
 
 module Main (main) where
 
+import Data.List.Split
 import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith, ExitCode(ExitSuccess))
 import System.IO (stderr, hPutStrLn)
 import System.Console.GetOpt (getOpt, usageInfo, OptDescr(Option), ArgDescr(ReqArg, NoArg), ArgOrder(Permute))
-import Web.Twitter (uploadImage)
+import Web.Twitter (uploadImage, uploadImageWithParams)
 import Web.Twitter.OAuth (readToken)
 
 
@@ -24,7 +25,11 @@ version = "0.1"
 
 
 -- command line options
-data Options = Options { tokenFile :: String, image :: String, status :: String }
+data Options = Options { tokenFile :: String
+                       , image :: String
+                       , status :: String
+                       , coord :: Maybe (Double, Double)
+                       }
 
 
 -- command line defaults
@@ -32,11 +37,17 @@ defaultOpts :: Options
 defaultOpts = Options { tokenFile = error "no token file specified..."
                       , image = error "no image file specified..."
                       , status = ""
+                      , coord = Nothing
                       }
 
+handleCoordinate coordStr opt =
+   return opt { coord = Just latLon }
+   where
+      latLon = (toDbl $ coordStr' !! 0, toDbl $ coordStr' !! 1)
+      toDbl x = read x :: Double
+      coordStr' = splitOn "," coordStr
+   
 
--- command line description
--- this format is kinda bone headed:
 --   [Option short [long] (property setter-function hint) description]
 options :: [ OptDescr (Options -> IO Options) ]
 options =
@@ -51,6 +62,10 @@ options =
    , Option "s" ["status"] 
          (ReqArg (\arg opt -> return opt { status = arg }) "MESSAGE")
          "status tweet to be posted"
+
+   , Option "c" ["coordinates"] 
+         (ReqArg handleCoordinate "lat,lon")
+         "latitude and longitude to associate with this image"
 
    , Option "h" ["help"] 
          (NoArg $ \_ ->
@@ -83,5 +98,7 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
-         uploadImage token (status opts) (image opts)
+         case coord opts
+            of Nothing  -> uploadImage token (status opts) (image opts)
+               Just loc -> uploadImageWithParams token (status opts) (image opts) (Just True) Nothing (Just loc) Nothing (Just True)  -- making this function call sucks, too many args
 
