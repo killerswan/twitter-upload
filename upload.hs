@@ -100,10 +100,12 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
-         case coord opts
-            of Nothing     -> uploadImage token (status opts) (image opts)
-               Just latlon -> uploadImageWithAttr token (status opts) (image opts)
-                                 [ DisplayCoords
-                                 , LatLon (fst latlon) (snd latlon)
-                                 ]
+         new <- case coord opts
+                of Nothing     -> uploadImage token (status opts) (image opts)
+                   Just latlon -> uploadImageWithAttr token (status opts) (image opts)
+                                    [ DisplayCoords
+                                    , LatLon (fst latlon) (snd latlon)
+                                    ]
+
+         print new
 
