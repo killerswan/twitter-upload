@@ -15,7 +15,7 @@ import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith, ExitCode(ExitSuccess))
 import System.IO (stderr, hPutStrLn)
 import System.Console.GetOpt (getOpt, usageInfo, OptDescr(Option), ArgDescr(ReqArg, NoArg), ArgOrder(Permute))
-import Web.Twitter (uploadImage)
+import Web.Twitter (uploadImage, uploadImageWithAttr, ImageAttr(..))
 import Web.Twitter.OAuth (readToken)
 
 
@@ -24,16 +24,29 @@ version = "0.1"
 
 
 -- command line options
-data Options = Options { tokenFile :: String, image :: String, status :: String }
+data Options = Options { tokenFile :: String
+                       , image :: String
+                       , coord :: Maybe (Double, Double)
+                       , status :: String }
 
 
 -- command line defaults
 defaultOpts :: Options
-defaultOpts = Options { tokenFile = error "no token file specified..."
-                      , image = error "no image file specified..."
+defaultOpts = Options { tokenFile = error "no token file given..."
+                      , image = error "no image file given..."
+                      , coord = Nothing
                       , status = ""
                       }
 
+-- given a position "43.0,-119.67", parse the option
+getCoordinate :: String -> Options -> IO Options
+getCoordinate latlon opt =
+   return opt { coord = Just (lat, lon) }
+      where
+         lat = read (fst coord') :: Double
+         lon = read (drop 1 $ snd coord') :: Double
+         coord' = break (==',') latlon
+         
 
 -- command line description
 -- this format is kinda bone headed:
@@ -51,6 +64,10 @@ options =
    , Option "s" ["status"] 
          (ReqArg (\arg opt -> return opt { status = arg }) "MESSAGE")
          "status tweet to be posted"
+
+   , Option "c" ["coord"] 
+         (ReqArg getCoordinate "lat,lon")
+         "coordinates for this tweet"
 
    , Option "h" ["help"] 
          (NoArg $ \_ ->
@@ -83,5 +100,10 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
-         uploadImage token (status opts) (image opts)
+         case coord opts
+            of Nothing     -> uploadImage token (status opts) (image opts)
+               Just latlon -> uploadImageWithAttr token (status opts) (image opts)
+                                 [ DisplayCoords
+                                 , LatLon (fst latlon) (snd latlon)
+                                 ]
 
