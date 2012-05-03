@@ -15,7 +15,7 @@ import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith, ExitCode(ExitSuccess))
 import System.IO (stderr, hPutStrLn)
 import System.Console.GetOpt (getOpt, usageInfo, OptDescr(Option), ArgDescr(ReqArg, NoArg), ArgOrder(Permute))
-import Web.Twitter (uploadImage, uploadImageWithAttr, ImageAttr(..))
+import Web.Twitter (updateStatus, updateStatusWithAttr, StatusAttr(..), uploadImage, uploadImageWithAttr, ImageAttr(..))
 import Web.Twitter.OAuth (readToken)
 
 
@@ -25,7 +25,7 @@ version = "0.1"
 
 -- command line options
 data Options = Options { tokenFile :: String
-                       , image :: String
+                       , image :: Maybe String
                        , coord :: Maybe (Double, Double)
                        , status :: String }
 
@@ -33,7 +33,7 @@ data Options = Options { tokenFile :: String
 -- command line defaults
 defaultOpts :: Options
 defaultOpts = Options { tokenFile = error "no token file given..."
-                      , image = error "no image file given..."
+                      , image = Nothing
                       , coord = Nothing
                       , status = ""
                       }
@@ -58,7 +58,7 @@ options =
          "file where the oauth token is saved"
 
    , Option "i" ["image"] 
-         (ReqArg (\arg opt -> return opt { image = arg }) "FILE")
+         (ReqArg (\arg opt -> return opt { image = Just arg }) "FILE")
          "image to be uploaded"
 
    , Option "s" ["status"] 
@@ -100,12 +100,16 @@ main =
 
       do
          token  <- readToken (tokenFile opts)
-         new <- case coord opts
-                of Nothing     -> uploadImage token (status opts) (image opts)
-                   Just latlon -> uploadImageWithAttr token (status opts) (image opts)
-                                    [ DisplayCoords
-                                    , LatLon (fst latlon) (snd latlon)
-                                    ]
+         let tweet = status opts
+         new <- case (coord opts, image opts)
+                of (Nothing,     Just imagePath) -> uploadImage token tweet imagePath
+                   (Just latlon, Just imagePath) -> uploadImageWithAttr token tweet imagePath
+                                                      [ ImageDisplayCoords
+                                                      , ImageLatLon (fst latlon) (snd latlon) ]
+                   (Just latlon, Nothing)        -> updateStatusWithAttr token tweet
+                                                      [ StatusDisplayCoords
+                                                      , StatusLatLon (fst latlon) (snd latlon) ]
+                   (Nothing, Nothing)            -> updateStatus token tweet
 
          print new
 
